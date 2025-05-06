@@ -3,10 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My server</title>
+    <title>Pastebin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
-    <h1>welcome to my server</h1>
+    <h1>Pastebin</h1>
+    <form action="/paste" method="post">
+        <textarea name="content" rows="10" cols="50" placeholder="Paste your text here..."></textarea><br>
+
+        <label for="days">Days:</label>
+        <input type="number" id="days" name="days" min="0" value="0">
+        <br>
+        <label for="hours">Hours:</label>
+        <input type="number" id="hours" name="hours" min="0" value="0">
+        <br>
+        <label for="minutes">Minutes:</label>
+        <input type="number" id="minutes" name="minutes" min="0" value="10">
+        <br>
+        <label for="seconds">Seconds:</label>
+        <input type="number" id="seconds" name="seconds" min="0" value="0"><br><br>
+
+        <label for="password">Password (optional):</label>
+        <input type="password" id="password" name="password" placeholder="Enter a password"><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if paste_id %}
+        <p>Here is your short URL: 
+            <br>
+            <a href="{{ request.host_url ~ paste_id }}">
+                {{ request.host_url ~ paste_id }}
+            </a>
+        </p>
+        {% if password %}
+            <p>Here is your password: {{ password }}</p>
+        {% endif %}
+    {% endif %}
+
+
+    <a href="https://github.com/kpoier/pastebin" target="_blank">GitHub</a>
 </body>
 </html>
