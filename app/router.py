@@ -21,7 +21,12 @@ def create_paste():
     paste_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=4))
     while db.session.query(Paste).filter_by(paste_id=paste_id).first():
         paste_id = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=4))
-    uploader_ip = request.remote_addr
+    
+    if request.headers.get('X-Forwarded-For'):
+        uploader_ip = request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    else:
+        uploader_ip = request.headers.get('X-Real-IP', request.remote_addr)
+    
     created_at = datetime.now(UTC)
     d = int(request.form.get('days', 0))
     h = int(request.form.get('hours', 0))
@@ -73,3 +78,7 @@ def paste(paste_id):
             return render_template('password.html', paste_id=paste_id)
 
     return render_template('paste.html', content=paste.content)
+
+@main_bp.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='img/favicon.ico'), code=302)
