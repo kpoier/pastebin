@@ -20,9 +20,3 @@ class Paste(db.Model):
 
     def is_expired(self):
         return datetime.now(UTC) > self.expired_at.replace(tzinfo=UTC)
-
-    @classmethod
-    def delete_expired(cls):
-        now = datetime.now(UTC)
-        cls.query.filter(cls.expired_at < now).delete(synchronize_session=False)
-        db.session.commit()

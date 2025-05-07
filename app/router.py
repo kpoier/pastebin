@@ -54,6 +54,17 @@ def paste(paste_id):
         abort(404)
     
     if paste.is_expired():
+        def refresh():
+            now = datetime.now(UTC)
+            expired_pastes = Paste.query.filter(Paste.expired_at < now).all()
+
+            for paste in expired_pastes:
+                db.session.delete(paste)
+
+            db.session.commit()
+            print(f"Deleted {len(expired_pastes)} expired pastes.")
+
+        refresh()
         return "Expired"
     
     if paste.password:
