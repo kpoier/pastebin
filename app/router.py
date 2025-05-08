@@ -51,33 +51,33 @@ def create_paste():
 
     return redirect(url_for('main.index', paste_id=paste_id, password=password))
 
-@main_bp.route('/<paste_id>')
+
+@main_bp.route('/<paste_id>', methods=['GET', 'POST'])
 def paste(paste_id):
     paste = db.session.query(Paste).filter_by(paste_id=paste_id).first()
-
     if not paste:
         abort(404)
-    
+
     if paste.is_expired():
-        def refresh():
-            now = datetime.now(UTC)
-            expired_pastes = Paste.query.filter(Paste.expired_at < now).all()
-
-            for paste in expired_pastes:
-                db.session.delete(paste)
-
-            db.session.commit()
-            print(f"Deleted {len(expired_pastes)} expired pastes.")
-
-        refresh()
+        now = datetime.now(UTC)
+        expired_pastes = Paste.query.filter(Paste.expired_at < now).all()
+        for expired in expired_pastes:
+            db.session.delete(expired)
+        db.session.commit()
+        print(f"Deleted {len(expired_pastes)} expired pastes.")
         return "Expired"
-    
+
     if paste.password:
-        password = request.args.get('password')
-        if not password or password != paste.password:
-            return render_template('password.html', paste_id=paste_id)
+        if request.method == 'POST':
+            password = request.form.get('password')
+            if password == paste.password:
+                return render_template('paste.html', content=paste.content)
+            else:
+                return render_template('paste.html', paste_id=paste_id, error="Wrong password")
+        return render_template('paste.html', paste_id=paste_id)
 
     return render_template('paste.html', content=paste.content)
+
 
 @main_bp.route('/favicon.ico')
 def favicon():

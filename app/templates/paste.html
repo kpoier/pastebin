@@ -2,12 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Paste</title>
 </head>
 <body>
-    <h1>Your Paste</h1>
-    <pre>{{ content }}</pre>
+
+    {% if content %}
+        <h1>Your Paste</h1>
+        <pre>{{ content }}</pre>
+    {% elif paste_id %}
+        <h1>This paste is password-protected</h1>
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+        <form action="{{ url_for('main.paste', paste_id=paste_id) }}" method="post">
+            <input type="password" name="password" placeholder="Enter your password">
+            <button type="submit">Submit</button>
+        </form>
+    {% else %}
+        <h1>Error: No content found</h1>
+    {% endif %}
 
     <a href="/">Create another paste</a>
 </body>

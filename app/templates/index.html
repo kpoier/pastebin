@@ -36,11 +36,17 @@
                 {{ request.host_url ~ paste_id }}
             </a>
         </p>
+
         {% if password %}
-            <p>Here is your password: {{ password }}</p>
+            <p>Your password: <strong>{{ password }}</strong></p>
+            <p>
+                Direct access with password:<br>
+                <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}">
+                    {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
+                </a>
+            </p>
         {% endif %}
     {% endif %}
-
 
     <a href="https://github.com/kpoier/pastebin" target="_blank">GitHub</a>
 </body>
