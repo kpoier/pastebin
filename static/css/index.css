@@ -1,5 +1,255 @@
-h1 {
-    color: #333;
-    font-size: 2em;
-    text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-color: #000000;
+  --card-bg: #0a0a0a;
+  --text-main: #e0e0e0;
+  --text-muted: #666666;
+  --primary: #ffffff;
+  --border: #333333;
+  --input-bg: #050505;
 }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 2.5rem;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-align: left;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  color: var(--primary);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  color: var(--text-main);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 250px;
+}
+
+textarea:focus, input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.time-section {
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  background: #050505;
+}
+
+.time-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.6rem;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.preset-btn:hover {
+  border-color: var(--text-muted);
+}
+
+.preset-btn.active {
+  background: var(--primary);
+  color: #000;
+  border: 1px solid var(--primary);
+  font-weight: 700;
+}
+
+.time-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.time-inputs > div {
+  flex: 1;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--primary);
+  border-radius: 0;
+  background: var(--primary);
+  color: #000;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: #000;
+  color: var(--primary);
+}
+
+.result-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #000;
+  border: 1px solid var(--primary);
+  text-align: left;
+}
+
+.result-card p {
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.result-card a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  word-break: break-all;
+  border-bottom: 1px dashed var(--primary);
+  font-size: 1.1rem;
+}
+
+.result-card a:hover {
+  border-bottom-style: solid;
+}
+
+.result-card .password {
+  display: inline-block;
+  margin: 0.5rem 0 1.5rem 0;
+  padding: 0.5rem 1rem;
+  background: #111;
+  border: 1px solid var(--border);
+  font-family: monospace;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.footer a {
+  color: var(--text-muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.footer a:hover {
+  color: var(--primary);
+}
+
+pre {
+  background: var(--input-bg);
+  padding: 1.5rem;
+  border-radius: 0;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Prism custom overrides for sharp look */
+code[class*="language-"], pre[class*="language-"] {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 1rem;
+  }
+  .container {
+    padding: 1.5rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  .time-inputs {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .time-inputs > div {
+    flex: 1 1 40%;
+  }
+  .preset-btn {
+    min-width: 30%;
+    padding: 0.8rem;
+  }
+  .mode-switch {
+    flex-direction: column !important;
+  }
+}
+

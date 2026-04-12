@@ -2,26 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Paste</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <!-- Prism Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
 </head>
 <body>
 
-    {% if content %}
-        <h1>Your Paste</h1>
-        <pre>{{ content }}</pre>
-    {% elif paste_id %}
-        <h1>This paste is password-protected</h1>
-        {% if error %}
-            <p style="color:red;">{{ error }}</p>
+    <div class="container" style="max-width: 1000px;">
+        {% if paste_id %}
+            <h1 style="font-size: 2rem; text-align: center; border: none;">[ ENCRYPTED_BLOCK ]</h1>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">AUTHENTICATION REQUIRED</p>
+            
+            {% if error %}
+                <div style="background: #110000; border: 1px dashed red; padding: 1rem; color: red; margin-bottom: 1.5rem; text-align: center; font-weight: bold; text-transform: uppercase;">
+                    {{ error }}
+                </div>
+            {% endif %}
+            
+            <form action="{{ url_for('main.paste', paste_id=paste_id) }}" method="post" style="max-width: 400px; margin: 0 auto;">
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="ENTER ACCESS KEY" required>
+                </div>
+                <button type="submit">DECRYPT</button>
+            </form>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/" style="color: var(--text-muted); text-decoration: none; text-transform: uppercase;">[ ABORT ]</a>
+            </div>
+        {% else %}
+            <h1 style="border: none; text-align: center; color: red;">[ ERROR_404 ]</h1>
+            <p style="text-align: center; color: var(--text-muted); text-transform: uppercase;">DATA NOT FOUND OR EXPIRED</p>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/" style="color: var(--primary); text-decoration: none; font-weight: 700; text-transform: uppercase;">[ INIT_NEW ]</a>
+            </div>
         {% endif %}
-        <form action="{{ url_for('main.paste', paste_id=paste_id) }}" method="post">
-            <input type="password" name="password" placeholder="Enter your password">
-            <button type="submit">Submit</button>
-        </form>
-    {% else %}
-        <h1>Error: No content found</h1>
-    {% endif %}
-
-    <a href="/">Create another paste</a>
+    </div>
 </body>
 </html>

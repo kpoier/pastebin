@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  pastebin:
+    build: .
+    container_name: pastebin
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./database.db:/app/database.db
+    restart: always

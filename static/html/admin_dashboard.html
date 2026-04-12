@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN DASHBOARD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <style>
+        .container {
+            max-width: 1200px !important;
+            padding: 1.5rem;
+        }
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            background: #111;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+        .search-input {
+            width: 300px;
+            padding: 0.5rem;
+            background: #000;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-family: inherit;
+        }
+        .btn-danger {
+            background: rgba(255, 0, 0, 0.1);
+            color: red;
+            border: 1px solid red;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        .btn-danger:hover {
+            background: red;
+            color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: left;
+        }
+        th {
+            background: #111;
+            color: var(--primary);
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover {
+            background: #222;
+        }
+        tr:hover {
+            background: #080808;
+        }
+        tr.deleted td {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+        .action-btn {
+            padding: 0.2rem 0.5rem;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .action-btn:hover {
+            background: var(--primary);
+            color: #000;
+        }
+        .action-btn.delete { border-color: red; color: red; }
+        .action-btn.delete:hover { background: red; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+            <h1 style="margin-bottom: 0; border: none; padding: 0;">[ SYSTEM_OVERVIEW ]</h1>
+            <a href="{{ url_for('admin.logout') }}" style="color: red; text-decoration: none; font-weight: 700; text-transform: uppercase;">[ LOGOUT ]</a>
+        </div>
+
+        <form id="massForm" action="{{ url_for('admin.batch_delete') }}" method="post">
+            <div class="control-panel">
+                <input type="text" id="searchInput" class="search-input" placeholder="SEARCH (ID, IP, NAME)...">
+                <button type="submit" class="btn-danger">[ BATCH_DELETE ]</button>
+            </div>
+
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;"><input type="checkbox" id="selectAll"></th>
+                        <th onclick="sortTable(1)">ID &#x21D5;</th>
+                        <th onclick="sortTable(2)">Type &#x21D5;</th>
+                        <th onclick="sortTable(3)">Uploader IP &#x21D5;</th>
+                        <th onclick="sortTable(4)">Created At &#x21D5;</th>
+                        <th onclick="sortTable(5)">Expires/Status &#x21D5;</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    {% for paste in pastes %}
+                    <tr class="{{ 'deleted' if paste.is_deleted() else '' }}">
+                        <td>
+                            {% if not paste.is_deleted() %}
+                            <input type="checkbox" name="paste_ids" value="{{ paste.paste_id }}" class="row-checkbox">
+                            {% endif %}
+                        </td>
+                        <td style="font-family: monospace;">{{ paste.paste_id }}</td>
+                        <td>{{ 'FILE (' ~ paste.filename ~ ')' if paste.filename else 'TEXT' }}</td>
+                        <td>{{ paste.uploader_ip }}</td>
+                        <td>{{ paste.created_at.strftime('%Y-%m-%d %H:%M:%S') if paste.created_at else 'Unknown' }}</td>
+                        <td>
+                            {% if paste.is_deleted() %}
+                                <span style="color: gray;">TRASHED</span>
+                            {% elif paste.is_expired() %}
+                                <span style="color: red;">EXPIRED</span>
+                            {% else %}
+                                {{ paste.expired_at.strftime('%Y-%m-%d %H:%M:%S') if paste.expired_at else 'Unknown' }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_paste', paste_id=paste.paste_id) }}" class="action-btn">Manage</a>
+                            {% if not paste.is_deleted() %}
+                                <button type="button" class="action-btn delete" onclick="document.getElementById('idx_{{ paste.paste_id }}').submit();">Delete</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">NO_RECORDS_FOUND</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        {% for paste in pastes %}
+            {% if not paste.is_deleted() %}
+            <form id="idx_{{ paste.paste_id }}" action="{{ url_for('admin.delete_paste', paste_id=paste.paste_id) }}" method="post" style="display:none;"></form>
+            {% endif %}
+        {% endfor %}
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="/" style="color: var(--text-muted); text-decoration: none; text-transform: uppercase;">[ BACK_TO_MAIN ]</a>
+        </div>
+    </div>
+
+    <script>
+        // Select All Logic
+        document.getElementById('selectAll').addEventListener('change', function(e) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            for (let cb of checkboxes) {
+                const tr = cb.closest('tr');
+                if (tr.style.display !== 'none') {
+                    cb.checked = e.target.checked;
+                }
+            }
+        });
+
+        // Search Logic
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            const rows = document.getElementById('tableBody').getElementsByTagName('tr');
+            for (let row of rows) {
+                if (row.children.length > 1) {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(term) ? '' : 'none';
+                }
+            }
+            // uncheck selectAll when filtering
+            document.getElementById('selectAll').checked = false;
+        });
+
+        // Sorting Logic
+        let sortDirections = [true, true, true, true, true, true, true]; 
+        function sortTable(n) {
+            const table = document.getElementById('dataTable');
+            let rows, switching, i, x, y, shouldSwitch, asc = sortDirections[n];
+            switching = true;
+            
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (!x || !y) continue;
+                    
+                    if (asc) {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) { shouldSwitch = true; break; }
+                    } else {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) { shouldSwitch = true; break; }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+            sortDirections[n] = !asc;
+        }
+    </script>
+</body>
+</html>

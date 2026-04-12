@@ -7,50 +7,119 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
-    <h1>Pastebin</h1>
-    <form action="/paste" method="post">
-        <textarea name="content" rows="10" cols="50" placeholder="Paste your text here..."></textarea><br>
-
-        <label for="days">Days:</label>
-        <input type="number" id="days" name="days" min="0" value="0">
-        <br>
-        <label for="hours">Hours:</label>
-        <input type="number" id="hours" name="hours" min="0" value="0">
-        <br>
-        <label for="minutes">Minutes:</label>
-        <input type="number" id="minutes" name="minutes" min="0" value="10">
-        <br>
-        <label for="seconds">Seconds:</label>
-        <input type="number" id="seconds" name="seconds" min="0" value="0"><br><br>
-
-        <label for="password">Password (optional):</label>
-        <input type="password" id="password" name="password" placeholder="Enter a password"><br><br>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    {% if paste_id %}
-        <p>Here is your short URL
-            <br>
-            <a href="{{ request.host_url ~ paste_id }}">
-                {{ request.host_url ~ paste_id }}
-            </a>
-        </p>
-
-        {% if password %}
-            <p>Your password</p>
-            <div class="password">
-                <a>{{ password }}</a>
+    <div class="container">
+        <h1>[ PASTEBIN ]</h1>
+        <form action="/paste" method="post" enctype="multipart/form-data">
+            <div class="form-group mode-switch" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--border); padding-bottom: 1.5rem;">
+                <button type="button" class="preset-btn active" id="mode-text-btn" onclick="setMode('text')">[ TEXT_MODE ]</button>
+                <button type="button" class="preset-btn" id="mode-file-btn" onclick="setMode('file')">[ FILE_UPLOAD ]</button>
             </div>
-            <p>
-                Direct access with password<br>
-                <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}">
-                    {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
-                </a>
-            </p>
-        {% endif %}
-    {% endif %}
 
-    <a href="https://github.com/kpoier/pastebin" target="_blank">GitHub</a>
+            <div class="form-group" id="text-input-group">
+                <textarea name="content" placeholder="USER INPUT REQUIRED..." required></textarea>
+            </div>
+
+            <div class="form-group" id="file-input-group" style="display: none; background: var(--input-bg); border: 1px dashed var(--border); padding: 3rem; text-align: center;">
+                <label for="file" style="cursor: pointer; padding: 1rem; border: 1px solid var(--primary); display: inline-block; background: transparent; color: var(--text-main);">[ SELECT_FILE ]</label>
+                <input type="file" id="file" name="file" style="display: none;" onchange="document.getElementById('file-name').innerText = this.files[0] ? this.files[0].name : '[ NO_FILE_SELECTED ]'">
+                <div id="file-name" style="margin-top: 1.5rem; color: var(--primary); font-family: monospace;">[ NO_FILE_SELECTED ]</div>
+            </div>
+
+            <div class="time-section">
+                <label>LIFESPAN (MAX 2 WEEKS)</label>
+                <div class="time-presets">
+                    <button type="button" class="preset-btn" onclick="setTime(event, 0, 0, 10, 0)">10 Min</button>
+                    <button type="button" class="preset-btn" onclick="setTime(event, 0, 1, 0, 0)">1 Hour</button>
+                    <button type="button" class="preset-btn active" onclick="setTime(event, 1, 0, 0, 0)">1 Day</button>
+                    <button type="button" class="preset-btn" onclick="setTime(event, 7, 0, 0, 0)">1 Week</button>
+                    <button type="button" class="preset-btn" onclick="setTime(event, 14, 0, 0, 0)">2 Weeks</button>
+                </div>
+                <div class="time-inputs" id="custom-time-inputs">
+                    <div>
+                        <label for="days">DD</label>
+                        <input type="number" id="days" name="days" min="0" value="1">
+                    </div>
+                    <div>
+                        <label for="hours">HH</label>
+                        <input type="number" id="hours" name="hours" min="0" value="0">
+                    </div>
+                    <div>
+                        <label for="minutes">MM</label>
+                        <input type="number" id="minutes" name="minutes" min="0" value="0">
+                    </div>
+                    <div>
+                        <label for="seconds">SS</label>
+                        <input type="number" id="seconds" name="seconds" min="0" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">PASSWORD (OPTIONAL)</label>
+                <input type="password" id="password" name="password" placeholder="[ ENCRYPT ]">
+            </div>
+
+            <button type="submit">EXECUTE</button>
+        </form>
+
+        {% if paste_id %}
+            <div class="result-card">
+                <p>TARGET URL:</p>
+                <a href="{{ request.host_url ~ paste_id }}" target="_blank">
+                    {{ request.host_url ~ paste_id }}
+                </a><br><br>
+
+                {% if password %}
+                    <p>ACCESS KEY:</p>
+                    <div class="password">{{ password }}</div><br>
+                    <p>DIRECT LINK:</p>
+                    <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}">
+                        {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <a href="https://github.com/kpoier/pastebin" target="_blank">SOURCE_CODE</a>
+    </div>
+
+    <script>
+        function setMode(mode) {
+            const contentArea = document.querySelector('textarea[name="content"]');
+            
+            if (mode === 'text') {
+                document.getElementById('mode-text-btn').classList.add('active');
+                document.getElementById('mode-file-btn').classList.remove('active');
+                document.getElementById('text-input-group').style.display = 'block';
+                document.getElementById('file-input-group').style.display = 'none';
+                contentArea.setAttribute('required', 'required');
+            } else {
+                document.getElementById('mode-file-btn').classList.add('active');
+                document.getElementById('mode-text-btn').classList.remove('active');
+                document.getElementById('text-input-group').style.display = 'none';
+                document.getElementById('file-input-group').style.display = 'block';
+                contentArea.removeAttribute('required');
+                contentArea.value = ''; // clear text if file uploaded
+            }
+        }
+
+        function setTime(event, d, h, m, s) {
+            document.getElementById('days').value = d;
+            document.getElementById('hours').value = h;
+            document.getElementById('minutes').value = m;
+            document.getElementById('seconds').value = s;
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            if(event) event.target.classList.add('active');
+        }
+        
+        document.querySelectorAll('#custom-time-inputs input').forEach(input => {
+            input.addEventListener('input', () => {
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            });
+        });
+    </script>
 </body>
 </html>

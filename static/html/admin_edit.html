@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANAGE RECORD</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <style>
+        .detail-box {
+            background: #0d0d0d;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .detail-item {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        .detail-item label {
+            width: 150px;
+            color: var(--primary);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .control-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            align-items: center;
+        }
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .btn-action:hover {
+            background: var(--primary);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 800px; padding: 2rem;">
+        <h1 style="border-bottom: 1px dashed var(--border); padding-bottom: 1rem; margin-bottom: 2rem;">[ DIRECT_CONTROL ]</h1>
+        
+        <div class="detail-box">
+            <div class="detail-item">
+                <label>ID</label>
+                <div style="font-family: monospace; font-size: 1.2rem;">{{ paste.paste_id }}</div>
+            </div>
+            <div class="detail-item">
+                <label>TYPE</label>
+                <div>{{ 'FILE: ' ~ paste.filename if paste.filename else 'TEXT' }}</div>
+            </div>
+            <div class="detail-item">
+                <label>UPLOADER_IP</label>
+                <div>{{ paste.uploader_ip }}</div>
+            </div>
+            <div class="detail-item">
+                <label>PASSWORD_SET</label>
+                <div style="color: {{ 'green' if paste.password else 'gray' }}">
+                    {{ '[ YES ]' if paste.password else '[ NO ]' }}
+                </div>
+            </div>
+            <div class="detail-item">
+                <label>CRITICAL_STATE</label>
+                <div>
+                    {% if paste.is_deleted() %}
+                        <span style="color: red; font-weight: bold;">[ TRASHED ]</span>
+                    {% elif paste.is_expired() %}
+                        <span style="color: red; font-weight: bold;">[ EXPIRED ]</span>
+                    {% else %}
+                        <span style="color: green; font-weight: bold;">[ ACTIVE ]</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-item">
+                <label>EXPIRES_AT</label>
+                <div id="expiry-display" style="font-family: monospace;">
+                    {% if paste.expired_at.year == 9999 %}
+                        PERMANENT
+                    {% else %}
+                        {{ paste.expired_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+            <a href="{{ url_for('admin.view_raw', paste_id=paste.paste_id) }}" target="_blank" class="btn-action" style="flex: 1; text-align: center;">[ PREVIEW ]</a>
+            
+            {% if paste.is_deleted() %}
+            <form action="{{ url_for('admin.update_paste', paste_id=paste.paste_id) }}" method="post" style="flex: 1; display: flex;">
+                <input type="hidden" name="action" value="restore">
+                <button type="submit" class="btn-action" style="flex: 1; width: 100%; border-color: green; color: green;">[ RESTORE ]</button>
+            </form>
+            {% endif %}
+
+            <form action="{{ url_for('admin.update_paste', paste_id=paste.paste_id) }}" method="post" style="flex: 1; display: flex;">
+                <input type="hidden" name="action" value="permanent">
+                <button type="submit" class="btn-action" style="flex: 1; width: 100%;" onclick="return confirm('Ensure absolute persistence?');">[ PERMANENT ]</button>
+            </form>
+        </div>
+
+        <div class="detail-box">
+            <h3 style="color: var(--primary); margin-top: 0; margin-bottom: 1rem;">[ EXTEND_LIFESPAN ]</h3>
+            <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;">Add time to current expiry (or from now if already expired).</p>
+            <form action="{{ url_for('admin.update_paste', paste_id=paste.paste_id) }}" method="post">
+                <input type="hidden" name="action" value="extend">
+                <div style="display: flex; gap: 1rem;">
+                    <div><label>Days</label><br><input type="number" name="days" value="1" min="0" style="width: 80px; padding: 0.5rem; background: #000; border: 1px solid var(--border); color: var(--text-main);"></div>
+                    <div><label>Hours</label><br><input type="number" name="hours" value="0" min="0" style="width: 80px; padding: 0.5rem; background: #000; border: 1px solid var(--border); color: var(--text-main);"></div>
+                    <div><label>Mins</label><br><input type="number" name="minutes" value="0" min="0" style="width: 80px; padding: 0.5rem; background: #000; border: 1px solid var(--border); color: var(--text-main);"></div>
+                </div>
+                <button type="submit" class="btn-action" style="margin-top: 1.5rem;">[ APPLY_EXTENSION ]</button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem;">
+            <a href="{{ url_for('admin.dashboard') }}" style="color: var(--text-muted); text-decoration: none; text-transform: uppercase;">[ BACK_TO_OVERVIEW ]</a>
+        </div>
+    </div>
+</body>
+</html>

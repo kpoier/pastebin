@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 db = SQLAlchemy()
 
@@ -17,9 +18,15 @@ def create_app():
     app.SQLALCHEMY_DATABASE_URI = app.config['SQLALCHEMY_DATABASE_URI']
     db.init_app(app)
 
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
     with app.app_context():
         from app.router import main_bp
         app.register_blueprint(main_bp)
+        
+        from app.admin import admin_bp
+        app.register_blueprint(admin_bp, url_prefix=app.config['ADMIN_URL_PREFIX'])
+        
         from app.model import Paste
         db.create_all()
 
