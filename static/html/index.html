@@ -30,7 +30,7 @@
     </form>
 
     {% if paste_id %}
-        <p>Here is your short URL: 
+        <p>Here is your short URL
             <br>
             <a href="{{ request.host_url ~ paste_id }}">
                 {{ request.host_url ~ paste_id }}
@@ -38,9 +38,12 @@
         </p>
 
         {% if password %}
-            <p>Your password: <strong>{{ password }}</strong></p>
+            <p>Your password</p>
+            <div class="password">
+                <a>{{ password }}</a>
+            </div>
             <p>
-                Direct access with password:<br>
+                Direct access with password<br>
                 <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}">
                     {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
                 </a>

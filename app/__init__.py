@@ -8,6 +8,7 @@ def create_app():
 
     # config
     app.config.from_object('config.Config')
+    app.template_folder = app.config['TEMPLATE_FOLDER']
     app.static_folder = app.config['STATIC_FOLDER']
     app.static_url_path = app.config['STATIC_URL']
     app.secret_key = app.config['SECRET_KEY']

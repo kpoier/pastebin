@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>time</title>
+    <style>
+        select {
+            font-size: 1.5em;
+            padding: 10px;
+            height: 150px;
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+        <select id="hour">
+          {% for h in range(0, 24) %}
+            <option value="{{ h }}" {% if h == default_hour %}selected{% endif %}>
+              {{ "%02d"|format(h) }}
+            </option>
+          {% endfor %}
+        </select>
+      
+        <select id="minute">
+          {% for m in range(0, 60, 5) %}
+            <option value="{{ m }}" {% if m == default_minute %}selected{% endif %}>
+              {{ "%02d"|format(m) }}
+            </option>
+          {% endfor %}
+        </select>
+    </div>
+</body>
+</html>

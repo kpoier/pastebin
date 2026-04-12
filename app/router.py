@@ -12,6 +12,10 @@ def index():
     password = request.args.get('password')
     return render_template('index.html', paste_id=paste_id, password=password)
 
+@main_bp.route('/time')
+def time():
+    return render_template('time_picker.html', default_hour=8, default_minute=30)
+
 @main_bp.route('/paste', methods=['POST'])
 def create_paste():
     content = request.form.get('content')
