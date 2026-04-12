@@ -17,7 +17,7 @@ This repo comes out of the box with Docker Compose for a frictionless production
 ```bash
 git clone <repository-url>
 cd pastebin
-docker-compose up -d
+docker-compose -f docker/docker-compose.yml up -d --build
 ```
 Your instance will be running directly on `http://127.0.0.1:5000` with the database and uploads persistently bound to the host folders.
 
@@ -25,7 +25,7 @@ Your instance will be running directly on `http://127.0.0.1:5000` with the datab
 ```bash
 python -m venv venv
 venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r docker/requirements.txt
 python run.py
 ```
 
