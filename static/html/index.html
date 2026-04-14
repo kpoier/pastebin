@@ -86,8 +86,14 @@
                         <button type="button" class="preset-btn" onclick="copyText(this, '{{ request.host_url ~ paste_id ~ '?password=' ~ password }}')" style="padding: 0.5rem 1rem;">COPY</button>
                     </div>
                 {% endif %}
+                
+                <div style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; border-top: 1px dashed var(--border); padding-top: 2rem;">
+                    <p style="margin-bottom: 1rem;">SCAN TO ACCESS:</p>
+                    <div id="qrcode" style="background: white; padding: 1rem; border-radius: 4px;"></div>
+                </div>
             </div>
 
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
             <script>
                 function copyText(btn, text) {
                     navigator.clipboard.writeText(text).then(() => {
@@ -100,6 +106,16 @@
                         }, 2000);
                     });
                 }
+
+                var qrText = "{{ request.host_url ~ paste_id }}{% if password %}?password={{ password | urlencode }}{% endif %}";
+                new QRCode(document.getElementById("qrcode"), {
+                    text: qrText,
+                    width: 150,
+                    height: 150,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
             </script>
         {% endif %}
     </div>
