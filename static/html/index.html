@@ -65,19 +65,42 @@
         {% if paste_id %}
             <div class="result-card">
                 <p>TARGET URL:</p>
-                <a href="{{ request.host_url ~ paste_id }}" target="_blank">
-                    {{ request.host_url ~ paste_id }}
-                </a><br><br>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="{{ request.host_url ~ paste_id }}" target="_blank" style="flex: 1; word-break: break-all;">
+                        {{ request.host_url ~ paste_id }}
+                    </a>
+                    <button type="button" class="preset-btn" onclick="copyText(this, '{{ request.host_url ~ paste_id }}')" style="padding: 0.5rem 1rem;">COPY</button>
+                </div><br>
 
                 {% if password %}
                     <p>ACCESS KEY:</p>
-                    <div class="password">{{ password }}</div><br>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div class="password" style="flex: 1; margin: 0;">{{ password }}</div>
+                        <button type="button" class="preset-btn" onclick="copyText(this, '{{ password }}')" style="padding: 0.5rem 1rem;">COPY</button>
+                    </div><br>
                     <p>DIRECT LINK:</p>
-                    <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}">
-                        {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
-                    </a>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <a href="{{ request.host_url ~ paste_id ~ '?password=' ~ password }}" target="_blank" style="flex: 1; word-break: break-all;">
+                            {{ request.host_url ~ paste_id ~ '?password=' ~ password }}
+                        </a>
+                        <button type="button" class="preset-btn" onclick="copyText(this, '{{ request.host_url ~ paste_id ~ '?password=' ~ password }}')" style="padding: 0.5rem 1rem;">COPY</button>
+                    </div>
                 {% endif %}
             </div>
+
+            <script>
+                function copyText(btn, text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalText = btn.innerText;
+                        btn.innerText = 'COPIED!';
+                        btn.classList.add('active');
+                        setTimeout(() => {
+                            btn.innerText = originalText;
+                            btn.classList.remove('active');
+                        }, 2000);
+                    });
+                }
+            </script>
         {% endif %}
     </div>
 

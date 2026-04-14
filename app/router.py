@@ -106,14 +106,14 @@ def paste(paste_id):
         abort(404)
 
     if paste.password:
-        if request.method == 'POST':
-            password = request.form.get('password')
+        password = request.form.get('password') if request.method == 'POST' else request.args.get('password')
+        if password:
             if password == paste.password:
                 if paste.filename:
                     path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
-                    return send_file(path, as_attachment=True, download_name=paste.filename, mimetype=paste.mimetype)
+                    return send_file(path, download_name=paste.filename, mimetype=paste.mimetype)
                 else:
-                    return Response(paste.content, mimetype='text/plain')
+                    return Response(paste.content, mimetype='text/plain', content_type='text/plain; charset=utf-8')
             else:
                 return render_template('paste.html', paste_id=paste_id, error="WRONG ACCESS KEY")
         
@@ -121,7 +121,7 @@ def paste(paste_id):
 
     if paste.filename:
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
-        return send_file(path, as_attachment=True, download_name=paste.filename, mimetype=paste.mimetype)
+        return send_file(path, download_name=paste.filename, mimetype=paste.mimetype)
     else:
         return Response(paste.content, mimetype='text/plain', content_type='text/plain; charset=utf-8')
 
