@@ -1,7 +1,10 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'your_secret_key')
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    if not SECRET_KEY:
+        raise RuntimeError("SECRET_KEY environment variable is not set. Please set it to a secure random value.")
+
     STATIC_FOLDER = '../static'
     STATIC_URL = '/static'
     TEMPLATE_FOLDER = '../static/html/'

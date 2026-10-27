@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from datetime import datetime, UTC
 import os
 from . import db
+from .file_security import is_allowed_extension
 from .model import Paste
 
 admin_bp = Blueprint('admin', __name__)
@@ -116,9 +117,18 @@ def view_raw(paste_id):
     paste = Paste.query.filter_by(paste_id=paste_id).first_or_404()
     
     if paste.filename:
+        if not is_allowed_extension(paste.filename):
+            abort(400)
         path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
         if os.path.exists(path):
-            return send_file(path, as_attachment=False, mimetype=paste.mimetype)
+            response = send_file(
+                path,
+                download_name=paste.filename,
+                mimetype='application/octet-stream',
+                as_attachment=True
+            )
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            return response
         else:
             return "File physically missing from disk.", 404
     else:

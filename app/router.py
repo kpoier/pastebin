@@ -5,9 +5,26 @@ from flask import Blueprint, render_template, request, redirect, url_for, abort,
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, and_
 from . import db
+from .file_security import is_allowed_extension
 from .model import Paste
 
 main_bp = Blueprint('main', __name__, template_folder='templates')
+
+
+def _send_file_as_attachment(paste):
+    if not is_allowed_extension(paste.filename):
+        abort(400)
+
+    path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
+    response = send_file(
+        path,
+        download_name=paste.filename,
+        mimetype='application/octet-stream',
+        as_attachment=True
+    )
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
 
 @main_bp.app_errorhandler(404)
 def page_not_found(e):
@@ -53,11 +70,11 @@ def create_paste():
     password = request.form.get('password', None)
 
     filename = None
-    mimetype = None
 
     if file and file.filename:
         filename = secure_filename(file.filename)
-        mimetype = file.mimetype
+        if not is_allowed_extension(filename):
+            abort(400)
         file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], paste_id))
         content = None
         
@@ -69,7 +86,6 @@ def create_paste():
         password=password,
         content=content,
         filename=filename,
-        mimetype=mimetype
     )
     db.session.add(new_paste)
     db.session.commit()
@@ -110,8 +126,7 @@ def paste(paste_id):
         if password:
             if password == paste.password:
                 if paste.filename:
-                    path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
-                    return send_file(path, download_name=paste.filename, mimetype=paste.mimetype)
+                    return _send_file_as_attachment(paste)
                 else:
                     return Response(paste.content, mimetype='text/plain', content_type='text/plain; charset=utf-8')
             else:
@@ -120,8 +135,7 @@ def paste(paste_id):
         return render_template('paste.html', paste_id=paste_id)
 
     if paste.filename:
-        path = os.path.join(current_app.config['UPLOAD_FOLDER'], paste.paste_id)
-        return send_file(path, download_name=paste.filename, mimetype=paste.mimetype)
+        return _send_file_as_attachment(paste)
     else:
         return Response(paste.content, mimetype='text/plain', content_type='text/plain; charset=utf-8')
 
